@@ -2,6 +2,7 @@ package com.devmarrima.dscommerce_list.entities;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
@@ -19,13 +20,15 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "tb_order")
 public class Order {
+	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	
 	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
 	private Instant moment;
-	private OrderStatus orderStatus;
+	
+	private OrderStatus status;
 	
 	@ManyToOne
 	@JoinColumn(name = "client_id")
@@ -40,10 +43,10 @@ public class Order {
 	public Order() {
 	}
 
-	public Order(long id, Instant moment, OrderStatus orderStatus, User client, Payment payment) {
+	public Order(long id, Instant moment, OrderStatus status, User client, Payment payment) {
 		this.id = id;
 		this.moment = moment;
-		this.orderStatus = orderStatus;
+		this.status = status;
 		this.client = client;
 		this.payment = payment;
 	}
@@ -64,12 +67,12 @@ public class Order {
 		this.moment = moment;
 	}
 
-	public OrderStatus getOrderStatus() {
-		return orderStatus;
+	public OrderStatus getStatus() {
+		return status;
 	}
 
-	public void setOrderStatus(OrderStatus orderStatus) {
-		this.orderStatus = orderStatus;
+	public void setStatus(OrderStatus status) {
+		this.status = status;
 	}
 
 	public User getClient() {
@@ -92,7 +95,9 @@ public class Order {
 		return items;
 	}
 	
-	
+	public List<Product> getProducts(){
+		return items.stream().map(x->x.getProduct()).toList();
+	}
 	
 
 }

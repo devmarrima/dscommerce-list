@@ -1,6 +1,7 @@
 package com.devmarrima.dscommerce_list.entities;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.Column;
@@ -30,8 +31,8 @@ public class Product {
 	
 	@ManyToMany
 	@JoinTable(name = "tb_product_category",
-	        joinColumns = @JoinColumn(name = "prducts_id"),
-	        inverseJoinColumns = @JoinColumn(name = "categories_id"))
+	        joinColumns = @JoinColumn(name = "product_id"),
+	        inverseJoinColumns = @JoinColumn(name = "category_id"))
 	private Set<Category> categories = new HashSet<>();
 	
 	@OneToMany(mappedBy = "id.product")
@@ -97,7 +98,10 @@ public class Product {
 		return items;
 	}
 	
-	
+	public List<Order> getOrders(){
+		return items.stream().map(x->x.getOrder()).toList();
+		
+	}
 	
 	
 	
