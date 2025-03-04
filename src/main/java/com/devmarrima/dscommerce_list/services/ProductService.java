@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.devmarrima.dscommerce_list.dto.ProductDTO;
 import com.devmarrima.dscommerce_list.entities.Product;
 import com.devmarrima.dscommerce_list.repositories.ProductRepository;
@@ -29,8 +30,8 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<ProductDTO> findAll(Pageable pageable) {
-		Page<Product> result = repository.findAll(pageable);
+	public Page<ProductDTO> findAll(String name, Pageable pageable) {
+		Page<Product> result = repository.searchByName(name, pageable);
 		return result.map(x -> new ProductDTO(x));
 	}
 
