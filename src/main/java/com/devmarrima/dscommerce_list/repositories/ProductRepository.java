@@ -10,7 +10,7 @@ import com.devmarrima.dscommerce_list.entities.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    @Query("SELECT obj FROM Product obj" +
+    @Query("SELECT obj FROM Product obj " +
     " WHERE UPPER(obj.name) LIKE UPPER(CONCAT('%',:name,'%')) ")
     Page<Product> searchByName(String name, Pageable pageable);
 
