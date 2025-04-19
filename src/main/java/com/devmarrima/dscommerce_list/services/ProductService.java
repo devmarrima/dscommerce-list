@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devmarrima.dscommerce_list.dto.CategoryDTO;
 import com.devmarrima.dscommerce_list.dto.ProductDTO;
 import com.devmarrima.dscommerce_list.dto.ProductMinDTO;
+import com.devmarrima.dscommerce_list.entities.Category;
 import com.devmarrima.dscommerce_list.entities.Product;
 import com.devmarrima.dscommerce_list.repositories.ProductRepository;
 import com.devmarrima.dscommerce_list.services.exceptions.DataBaseException;
@@ -60,24 +62,28 @@ public class ProductService {
 
 	@Transactional(propagation = Propagation.SUPPORTS)
 	public void delete(Long id) {
-		if(!repository.existsById(id)){
+		if (!repository.existsById(id)) {
 			throw new ResourceNotFoundException("Recurso não encontrado");
 		}
-			try{
-				repository.deleteById(id);
-			}
-			catch(DataIntegrityViolationException e){
-				throw new DataBaseException("Violação de restrição de integridade referencial!");
-			}
+		try {
+			repository.deleteById(id);
+		} catch (DataIntegrityViolationException e) {
+			throw new DataBaseException("Violação de restrição de integridade referencial!");
 		}
-
-	
+	}
 
 	private void copyDtoToEntity(ProductDTO dto, Product entity) {
 		entity.setName(dto.getName());
 		entity.setDescription(dto.getDescription());
 		entity.setPrice(dto.getPrice());
 		entity.setImgUrl(dto.getImgUrl());
+
+		entity.getCategories().clear();
+		for (CategoryDTO catDTO : dto.getCategories()) {
+			Category cat = new Category();
+			cat.setId(catDTO.getId());
+			entity.getCategories().add(cat);
+		}
 
 	}
 }
