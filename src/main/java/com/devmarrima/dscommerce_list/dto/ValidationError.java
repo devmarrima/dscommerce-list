@@ -12,6 +12,7 @@ public class ValidationError extends CustomErrorDTO {
     }
 
     public void addError(String fieldName, String massege){
+        erros.removeIf(x->x.getFieldName().equals(fieldName));
         erros.add(new FieldMessageDTO(fieldName, massege));
     }
     
