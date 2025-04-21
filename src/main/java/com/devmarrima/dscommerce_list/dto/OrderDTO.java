@@ -8,6 +8,8 @@ import com.devmarrima.dscommerce_list.entities.Order;
 import com.devmarrima.dscommerce_list.entities.OrderItem;
 import com.devmarrima.dscommerce_list.entities.OrderStatus;
 
+import jakarta.validation.constraints.NotEmpty;
+
 public class OrderDTO {
     private Long id;
     private Instant moment;
@@ -15,7 +17,11 @@ public class OrderDTO {
     private ClientDTO client;
     private PaymentDTO payment;
 
+    @NotEmpty(message = "Tem que ter pelomenos um item")
     private List<OrderItemDTO> items = new ArrayList<>();
+
+    public OrderDTO() {
+    }
 
     public OrderDTO(Long id, Instant moment, OrderStatus status, ClientDTO client, PaymentDTO payment) {
         this.id = id;
@@ -60,7 +66,6 @@ public class OrderDTO {
     public List<OrderItemDTO> getItems() {
         return items;
     }
-    
 
     public Double getTotal() {
         double som = 0.0;
@@ -71,4 +76,3 @@ public class OrderDTO {
     }
 
 }
-
