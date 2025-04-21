@@ -2,13 +2,13 @@ package com.devmarrima.dscommerce_list.dto;
 
 import java.time.Instant;
 
-public class CustomError {
+public class CustomErrorDTO {
     private Instant timeStamp;
     private Integer status;
     private String error;
     private String path;
 
-    public CustomError(Instant timeStamp, Integer status, String error, String path) {
+    public CustomErrorDTO(Instant timeStamp, Integer status, String error, String path) {
         this.timeStamp = timeStamp;
         this.status = status;
         this.error = error;
