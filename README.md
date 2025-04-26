@@ -57,7 +57,7 @@ Projeto de uma API RESTful para gerenciamento de produtos e pedidos em um sistem
 -Order ↔ Payment (@OneToOne)
 -Order ↔ Product (atravez do OrderItem)
 
-![Diagrama de Entidades Relacionadas](imagens/M-relacional.png)
+![Diagrama de Entidades Relacionadas](imagens)
 
 > 
 
