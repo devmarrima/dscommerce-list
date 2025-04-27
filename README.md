@@ -253,6 +253,12 @@ public class OrderItemPK {
 - `/users`
 
 ## Exemplo: CRUD do Product(DTO, Service, Repository e Controller)
+### **Estrutura do Projeto**
+O projeto segue o padrão de camadas de responsabilidade:
+- **DTO (Data Transfer Object)**: Responsável por transportar dados entre as camadas, sem expor diretamente as entidades do banco de dados. Ele serve como intermediário entre a camada de persistência e a camada de apresentação (API ou front-end), garantindo que apenas os dados necessários sejam enviados, evitando o acoplamento entre as camadas e melhorando a segurança e o desempenho e fácil de fazer a manutenção..
+- **Service**: Contém a lógica de negócios.
+- **Repository**: Faz a comunicação com o banco de dados.
+- **Controller**: Expõe os endpoints da API e recebe as requisições.
 
 ###DTO
 ```java
