@@ -496,6 +496,7 @@ Esta aplicação implementa um tratamento de exceções centralizado utilizando 
 As exceções específicas são capturadas e transformadas em respostas HTTP com códigos de status apropriados e um corpo JSON padronizado, facilitando a compreensão e o tratamento de erros pelo cliente da API.
 
 ##Estrutura:
+
 ###CustomErrorDTO
 ```java
 public class CustomErrorDTO {
@@ -616,6 +617,7 @@ public class ResourceNotFoundException extends RuntimeException {
 
   ```
 ##Consultas personalizadas
+
 ###ProductRepository **JPQL**
 ```java
 public interface ProductRepository extends JpaRepository<Product, Long> {
