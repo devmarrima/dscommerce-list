@@ -285,7 +285,7 @@ Para usar a Bean Validation no Spring Boot, é necessário adicionar a dependên
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-validation</artifactId>
 </dependency>
-
+```
 ###DTO
 ```java
 public class ProductDTO {
@@ -329,7 +329,8 @@ public class ProductDTO {
 
 	}
  getters e setters
----
+```
+```java
 public class ProductMinDTO {
 
 	private Long id;
