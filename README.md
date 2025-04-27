@@ -252,13 +252,203 @@ public class OrderItemPK {
 - `/orders`
 - `/users`
 
-### Exemplo: Criar Produto
+# Exemplo: CRUD do Product(DTO, Service, Repository e Controller)
 
-```json
-{
-  "name": "iPhone 14",
-  "description": "Smartphone Apple de última geração",
-  "imgUrl": "http://example.com/iphone.png",
-  "price": 7000.00,
-  "categories": [1, 2]
+##DTO
+```java
+public class ProductDTO {
+
+	private Long id;
+	@Size(min = 3, max = 80, message = " O campo tem que ter de 3 a 80 caracteres")
+	@NotBlank(message = "Campo requerido")
+	private String name;
+	@Size(min = 10, message = " O campo tem que ter no mínimo 10 caracteres")
+	@NotBlank(message = "Campo requerido")
+	private String description;
+	@NotNull(message = "Campo requerido")
+	@Positive(message = "O preço tem que ser positivo")
+	private Double price;
+	private String imgUrl;
+
+	@NotEmpty(message = "Tem que ter pelomenos uma categoria")
+	private List<CategoryDTO> categories = new ArrayList<>();
+
+	public ProductDTO() {
+
+	}
+
+	public ProductDTO(Long id, String name, String description, Double price, String imgUrl) {
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.price = price;
+		this.imgUrl = imgUrl;
+	}
+
+	public ProductDTO(Product entity) {
+		id = entity.getId();
+		name = entity.getName();
+		description = entity.getDescription();
+		price = entity.getPrice();
+		imgUrl = entity.getImgUrl();
+		for (Category cat : entity.getCategories()) {
+			categories.add(new CategoryDTO(cat));
+		}
+
+	}
+ getters e setters
+---
+public class ProductMinDTO {
+
+	private Long id;
+	private String name;
+	private Double price;
+	private String imgUrl;
+
+	public ProductMinDTO() {
+
+	}
+
+	public ProductMinDTO(Long id, String name, Double price, String imgUrl) {
+		this.id = id;
+		this.name = name;
+		this.price = price;
+		this.imgUrl = imgUrl;
+	}
+
+	public ProductMinDTO(Product entity) {
+		id = entity.getId();
+		name = entity.getName();
+		price = entity.getPrice();
+		imgUrl = entity.getImgUrl();
+	}
+getters e setters
 }
+```
+##Service
+```java
+@Service
+public class ProductService {
+
+	@Autowired
+	private ProductRepository repository;
+
+	@Transactional(readOnly = true)
+	public ProductDTO findById(Long id) {
+		Product product = repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Recurso não encontrado"));
+		return new ProductDTO(product);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<ProductMinDTO> findAll(String name, Pageable pageable) {
+		Page<Product> result = repository.searchByName(name, pageable);
+		return result.map(x -> new ProductMinDTO(x));
+	}
+
+	@Transactional
+	public ProductDTO insert(ProductDTO dto) {
+		Product entity = new Product();
+		copyDtoToEntity(dto, entity);
+		entity = repository.save(entity);
+		return new ProductDTO(entity);
+	}
+
+	@Transactional
+	public ProductDTO update(Long id, ProductDTO dto) {
+		try {
+			Product entity = repository.getReferenceById(id);
+			copyDtoToEntity(dto, entity);
+			entity = repository.save(entity);
+			return new ProductDTO(entity);
+
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Recurso não encontrado!");
+		}
+
+	}
+
+	@Transactional(propagation = Propagation.SUPPORTS)
+	public void delete(Long id) {
+		if (!repository.existsById(id)) {
+			throw new ResourceNotFoundException("Recurso não encontrado");
+		}
+		try {
+			repository.deleteById(id);
+		} catch (DataIntegrityViolationException e) {
+			throw new DataBaseException("Violação de restrição de integridade referencial!");
+		}
+	}
+
+	private void copyDtoToEntity(ProductDTO dto, Product entity) {
+		entity.setName(dto.getName());
+		entity.setDescription(dto.getDescription());
+		entity.setPrice(dto.getPrice());
+		entity.setImgUrl(dto.getImgUrl());
+
+		entity.getCategories().clear();
+		for (CategoryDTO catDTO : dto.getCategories()) {
+			Category cat = new Category();
+			cat.setId(catDTO.getId());
+			entity.getCategories().add(cat);
+		}
+
+	}
+}
+```
+##Repository
+```java
+public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    @Query("SELECT obj FROM Product obj " +
+    " WHERE UPPER(obj.name) LIKE UPPER(CONCAT('%',:name,'%')) ")
+    Page<Product> searchByName(String name, Pageable pageable);
+
+}
+```
+##Controller
+```java
+@RestController
+@RequestMapping(value = "/products")
+public class ProductController {
+
+	@Autowired
+	private ProductService service;
+
+	@GetMapping(value = ("/{id}"))
+	public ResponseEntity<ProductDTO> findById(@PathVariable Long id) {
+		ProductDTO dto = service.findById(id);
+		return ResponseEntity.ok(dto);
+	}
+
+	@GetMapping
+	public ResponseEntity<Page<ProductMinDTO>> findAll(
+			@RequestParam(name = "name", defaultValue = "") String name, Pageable pageable) {
+		Page<ProductMinDTO> dto = service.findAll(name, pageable);
+		return ResponseEntity.ok(dto);
+	}
+
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+	@PostMapping
+	public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductDTO dto) {
+		dto = service.insert(dto);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(dto.getId()).toUri();
+		return ResponseEntity.created(uri).body(dto);
+	}
+
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+	@PutMapping(value = ("/{id}"))
+	public ResponseEntity<ProductDTO> update(@PathVariable Long id, @Valid @RequestBody ProductDTO dto) {
+		dto = service.update(id, dto);
+		return ResponseEntity.ok(dto);
+	}
+
+	@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+	@DeleteMapping(value = ("/{id}"))
+	public ResponseEntity<Void> delete(@PathVariable Long id) {
+		service.delete(id);
+		return ResponseEntity.noContent().build();
+	}
+}
+
+```
