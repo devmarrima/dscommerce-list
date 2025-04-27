@@ -50,12 +50,23 @@ Projeto de uma API RESTful para gerenciamento de produtos e pedidos em um sistem
 
 - OrderStatus (Status do Pedido)
 
-**Relacionamentos:**
+# Relacionamentos entre Entidades
 
--Product ↔ Category (@ManyToMany)
--Order ↔ User (@ManyToOne)
--Order ↔ Payment (@OneToOne)
--Order ↔ Product (atravez do OrderItem)
+---
+## 1. **Product ↔ Category** (@ManyToMany)
+- **Descrição**: Um `Product` pode pertencer a várias `Category`, e uma `Category` pode ter vários `Products`. O relacionamento é feito através de uma tabela intermediária.
+---
+2. **Order ↔ User** (@ManyToOne)
+- **Descrição**: Um `Order` pertence a um único `User`, mas um `User` pode ter vários `Orders`. Esse é um relacionamento de muitos para um.
+---
+3. **Order ↔ Payment** (@OneToOne)
+- **Descrição**: Cada `Order` está relacionado a um único `Payment`, e cada `Payment` está vinculado a um único `Order`. Esse é um relacionamento um para um.
+---
+4. **Order ↔ Product** (Através de `OrderItem`)
+
+- **Descrição**: O relacionamento entre `Order` e `Product` é intermediado pela entidade `OrderItem`, que armazena informações sobre a quantidade e o preço de cada produto em um pedido.
+---
+
 
 ![Diagrama de Entidades Relacionadas](imagens/M-relacional.PNG)
 
