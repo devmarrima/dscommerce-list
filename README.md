@@ -16,8 +16,9 @@ Projeto de uma API RESTful para gerenciamento de produtos e pedidos em um sistem
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Modelagem de Domínio](#modelagem-de-domínio)
 - [Operações CRUD](#operações-crud)
-- [Autenticação e Autorização](#autenticação-e-autorização)
+- [Tratamento de exceções](#Tratamento-de-Exceções)
 - [Consultas Personalizadas](#consultas-personalizadas)
+- [Autenticação e Autorização](#autenticação-e-autorização)
 - [Como Rodar o Projeto](#como-rodar-o-projeto)
 - [Observações](#observações)
 
@@ -486,7 +487,7 @@ public class ProductController {
 
 ```
 
-## Tratamento de Exceções
+##Tratamento de Exceções
 
 Esta aplicação implementa um tratamento de exceções centralizado utilizando o `@ControllerAdvice` do Spring MVC para fornecer respostas de erro consistentes e informativas.
 
@@ -612,5 +613,31 @@ public class ResourceNotFoundException extends RuntimeException {
         CustomErrorDTO err = new CustomErrorDTO(Instant.now(), status.value(), e.getMessage(), request.getRequestURI());
         return ResponseEntity.status(status).body(err);
     }
-  ```
 
+  ```
+##Consultas personalizadas
+###ProductRepository **JPQL**
+```java
+public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    @Query("SELECT obj FROM Product obj " +
+    " WHERE UPPER(obj.name) LIKE UPPER(CONCAT('%',:name,'%')) ")
+    Page<Product> searchByName(String name, Pageable pageable);
+
+}
+```
+###UserRepository **SQL RAÍZ**
+```java
+public interface UserRepository extends JpaRepository<User, Long> {
+	@Query(nativeQuery = true, value = """
+			SELECT tb_user.email AS username, tb_user.password, tb_role.id AS roleId, tb_role.authority
+			FROM tb_user
+			INNER JOIN tb_user_role ON tb_user.id = tb_user_role.user_id
+			INNER JOIN tb_role ON tb_role.id = tb_user_role.role_id
+			WHERE tb_user.email = :email
+			""")
+	List<UserDetailsProjection> searchUserAndRolesByEmail(String email);
+
+	Optional<User> findByEmail(String email);
+}
+```
