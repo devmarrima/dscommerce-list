@@ -51,10 +51,10 @@ Projeto de uma API RESTful para gerenciamento de produtos e pedidos em um sistem
 
 - OrderStatus (Status do Pedido)
 
-# Relacionamentos entre Entidades
+## Relacionamentos entre Entidades
 
 ---
-## 1. **Product ↔ Category** (@ManyToMany)
+### 1. **Product ↔ Category** (@ManyToMany)
 - **Descrição**: Um `Product` pode pertencer a várias `Category`, e uma `Category` pode ter vários `Products`. O relacionamento é feito através de uma tabela intermediária.
 ---
 2. **Order ↔ User** (@ManyToOne)
@@ -73,9 +73,9 @@ Projeto de uma API RESTful para gerenciamento de produtos e pedidos em um sistem
 
 > 
 
-##Classes:
+## Classes:
 
-#Product
+### Product
 ```java
 @Entity
 @Table(name = "tb_product")
@@ -102,7 +102,7 @@ public class Product {
 }
 ```
 
-#Category
+### Category
 ```java
 @Entity
 @Table(name = "tb_category")
@@ -121,7 +121,7 @@ public class Category {
 
 ```
 
-#Order
+### Order
 ```java
 @Entity
 @Table(name = "tb_order")
@@ -150,7 +150,7 @@ public class Order {
 
 ```
 
-#User
+### User
 ```java
 @Entity
 @Table(name = "tb_user")
@@ -179,7 +179,7 @@ public class User implements UserDetails {
 
 ```
 
-#Payment
+### Payment
 ```java
 @Entity
 @Table(name = "tb_payment")
@@ -200,7 +200,7 @@ public class Payment {
 
 ```
 
-#OrderItem
+### OrderItem
 ```java
 @Entity
 @ Table(name = "tb_orderItem")
@@ -226,7 +226,7 @@ public class OrderItem {
 
 ```
 
-#OrderItemPK
+### OrderItemPK
 ```java
 @Embeddable
 public class OrderItemPK {
@@ -287,7 +287,7 @@ Para usar a Bean Validation no Spring Boot, é necessário adicionar a dependên
     <artifactId>spring-boot-starter-validation</artifactId>
 </dependency>
 ```
-###DTO
+### DTO
 ```java
 public class ProductDTO {
 
@@ -359,7 +359,7 @@ public class ProductMinDTO {
 getters e setters
 }
 ```
-###Service
+### Service
 ```java
 @Service
 public class ProductService {
@@ -430,7 +430,7 @@ public class ProductService {
 	}
 }
 ```
-###Repository
+### Repository
 ```java
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
@@ -440,7 +440,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 }
 ```
-###Controller
+### Controller
 ```java
 @RestController
 @RequestMapping(value = "/products")
@@ -487,7 +487,7 @@ public class ProductController {
 
 ```
 
-##Tratamento de Exceções
+## Tratamento de Exceções
 
 Esta aplicação implementa um tratamento de exceções centralizado utilizando o `@ControllerAdvice` do Spring MVC para fornecer respostas de erro consistentes e informativas.
 
@@ -495,9 +495,9 @@ Esta aplicação implementa um tratamento de exceções centralizado utilizando 
 
 As exceções específicas são capturadas e transformadas em respostas HTTP com códigos de status apropriados e um corpo JSON padronizado, facilitando a compreensão e o tratamento de erros pelo cliente da API.
 
-##Estrutura:
+## Estrutura:
 
-###CustomErrorDTO
+### CustomErrorDTO
 ```java
 public class CustomErrorDTO {
     private Instant timeStamp;
@@ -514,7 +514,7 @@ public class CustomErrorDTO {
 getters e setters
 }
 ```
-###FieldMessageDTO
+### FieldMessageDTO
 ```java
 public class FieldMessageDTO {
     private String fieldName;
@@ -527,7 +527,7 @@ public class FieldMessageDTO {
 getters e setters
 }
 ```
-###ValidationError
+### ValidationError
 ```java
 public class ValidationError extends CustomErrorDTO {
     public List<FieldMessageDTO> erros = new ArrayList<>();
@@ -544,7 +544,7 @@ public class ValidationError extends CustomErrorDTO {
 
 }
 ```
-###DataBaseException
+### DataBaseException
 ```java
 public class DataBaseException extends RuntimeException {
     public DataBaseException(String msg){
@@ -553,7 +553,7 @@ public class DataBaseException extends RuntimeException {
 
 }
 ```
-###ForbiddenException
+### ForbiddenException
 ```java
 public class ForbiddenException extends RuntimeException {
     public ForbiddenException(String msg){
@@ -562,7 +562,7 @@ public class ForbiddenException extends RuntimeException {
 
 }
 ```
-###ResourceNotFoundException
+### ResourceNotFoundException
 ```java
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String msg){
@@ -616,9 +616,9 @@ public class ResourceNotFoundException extends RuntimeException {
     }
 
   ```
-##Consultas personalizadas
+## Consultas personalizadas
 
-###ProductRepository **JPQL**
+### ProductRepository **JPQL**
 ```java
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
@@ -628,7 +628,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 }
 ```
-###UserRepository **SQL RAÍZ**
+### UserRepository **SQL RAÍZ**
 ```java
 public interface UserRepository extends JpaRepository<User, Long> {
 	@Query(nativeQuery = true, value = """
