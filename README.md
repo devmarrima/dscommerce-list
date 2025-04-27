@@ -259,6 +259,32 @@ O projeto segue o padrão de camadas de responsabilidade:
 - **Service**: Contém a lógica de negócios.
 - **Repository**: Faz a comunicação com o banco de dados.
 - **Controller**: Expõe os endpoints da API e recebe as requisições.
+---
+## **Validação de Dados com Bean Validation**
+
+No Spring Boot, a **Bean Validation** é usada para garantir que os dados recebidos em uma aplicação estejam de acordo com regras predefinidas antes de serem processados. Isso é especialmente útil para evitar que dados inválidos ou malformados cheguem à lógica de negócios e sejam persistidos no banco de dados. Para implementar isso no projeto, usamos a anotação `@Valid` nas rotas da API e as anotações de validação diretamente nos atributos do DTO, como visto no `ProductDTO`.
+
+### **Validações no ProductDTO**
+
+No `ProductDTO`, aplicamos diversas validações usando as anotações da Bean Validation, que ajudam a garantir que os dados estejam no formato esperado:
+
+- `@NotBlank`: Garante que os campos **name** e **description** não estejam vazios ou apenas com espaços em branco.
+- `@Size`: Restringe o número de caracteres em campos como **name** e **description** para garantir que eles possuam um tamanho adequado.
+- `@NotNull`: Certifica que o **price** seja fornecido.
+- `@Positive`: Verifica que o **price** seja um número positivo.
+- `@NotEmpty`: Garante que a lista de **categories** não esteja vazia.
+
+Essas anotações asseguram que apenas dados válidos sejam recebidos, melhorando a qualidade da aplicação e prevenindo erros.
+
+### **Dependência de Validação**
+
+Para usar a Bean Validation no Spring Boot, é necessário adicionar a dependência `spring-boot-starter-validation` no seu `pom.xml`, o que permite o uso das anotações de validação nas entidades e DTOs. Abaixo está a dependência que deve ser incluída no arquivo:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
 
 ###DTO
 ```java
