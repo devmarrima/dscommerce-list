@@ -485,3 +485,132 @@ public class ProductController {
 }
 
 ```
+
+## Tratamento de Exceções
+
+Esta aplicação implementa um tratamento de exceções centralizado utilizando o `@ControllerAdvice` do Spring MVC para fornecer respostas de erro consistentes e informativas.
+
+**Estratégia:**
+
+As exceções específicas são capturadas e transformadas em respostas HTTP com códigos de status apropriados e um corpo JSON padronizado, facilitando a compreensão e o tratamento de erros pelo cliente da API.
+
+##Estrutura:
+###CustomErrorDTO
+```java
+public class CustomErrorDTO {
+    private Instant timeStamp;
+    private Integer status;
+    private String error;
+    private String path;
+
+    public CustomErrorDTO(Instant timeStamp, Integer status, String error, String path) {
+        this.timeStamp = timeStamp;
+        this.status = status;
+        this.error = error;
+        this.path = path;
+    }
+getters e setters
+}
+```
+###FieldMessageDTO
+```java
+public class FieldMessageDTO {
+    private String fieldName;
+    private String message;
+
+    public FieldMessageDTO(String fieldName, String message) {
+        this.fieldName = fieldName;
+        this.message = message;
+    }
+getters e setters
+}
+```
+###ValidationError
+```java
+public class ValidationError extends CustomErrorDTO {
+    public List<FieldMessageDTO> erros = new ArrayList<>();
+
+    public ValidationError(Instant timeStamp, Integer status, String error, String path) {
+        super(timeStamp, status, error, path);
+    }
+
+    public void addError(String fieldName, String massege){
+        erros.removeIf(x->x.getFieldName().equals(fieldName));
+        erros.add(new FieldMessageDTO(fieldName, massege));
+    }
+    
+
+}
+```
+###DataBaseException
+```java
+public class DataBaseException extends RuntimeException {
+    public DataBaseException(String msg){
+        super(msg);
+    }
+
+}
+```
+###ForbiddenException
+```java
+public class ForbiddenException extends RuntimeException {
+    public ForbiddenException(String msg){
+        super(msg);
+    }
+
+}
+```
+###ResourceNotFoundException
+```java
+public class ResourceNotFoundException extends RuntimeException {
+    public ResourceNotFoundException(String msg){
+        super(msg);
+    }
+
+}
+```
+**Exceções Tratadas:**
+
+* **`ResourceNotFoundException`**: Retorna `404 Not Found` para recursos não encontrados.
+  ```java
+  public class ControllerExceptionHandler {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<CustomErrorDTO> ResourceNotFound(ResourceNotFoundException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        CustomErrorDTO err = new CustomErrorDTO(Instant.now(), status.value(), e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+  ```
+* **`DataBaseException`**: Retorna `400 Bad Request` para erros de banco de dados.
+    ```java
+        @ExceptionHandler(DataBaseException.class)
+    public ResponseEntity<CustomErrorDTO> database(DataBaseException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        CustomErrorDTO err = new CustomErrorDTO(Instant.now(), status.value(), e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+  ```
+* **`MethodArgumentNotValidException`**: Retorna `422 Unprocessable Entity` para erros de validação, detalhando os campos inválidos.
+    ```java
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<CustomErrorDTO> methodArgumentNotValid(MethodArgumentNotValidException e,
+            HttpServletRequest request) {
+        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+        ValidationError err = new ValidationError(Instant.now(), status.value(), "Dados inválidos",
+                request.getRequestURI());
+        for (FieldError f : e.getBindingResult().getFieldErrors()) {
+            err.addError(f.getField(), f.getDefaultMessage());
+        }
+        return ResponseEntity.status(status).body(err);
+    }
+  ```
+* **`ForbiddenException`**: Retorna `403 Forbidden` para acesso negado.
+    ```java
+       @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<CustomErrorDTO> forbidden(ForbiddenException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        CustomErrorDTO err = new CustomErrorDTO(Instant.now(), status.value(), e.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(status).body(err);
+    }
+  ```
+
