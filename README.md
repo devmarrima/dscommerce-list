@@ -643,3 +643,24 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByEmail(String email);
 }
 ```
+## Autenticação e Autorização
+
+A segurança desta API é implementada através de um sistema de autenticação baseado em **JWT (JSON Web Tokens)** e controle de acesso baseado em **Roles (RBAC - Role-Based Access Control)**.
+
+**Autenticação:**
+
+* Os usuários precisam fornecer suas credenciais (geralmente nome de usuário e senha) para realizar o processo de login através do endpoint `/api/auth/login` (exemplo).
+* Após a autenticação bem-sucedida, o servidor gera um token JWT que é retornado ao cliente.
+* Este token JWT contém informações sobre o usuário autenticado e suas autoridades (roles).
+* Para acessar endpoints protegidos da API, o cliente deve incluir o token JWT no cabeçalho da requisição, geralmente no formato `Authorization: Bearer <seu_token_jwt>`.
+* O backend verifica a validade do token JWT em cada requisição protegida antes de permitir o acesso ao recurso.
+
+**Autorização:**
+
+* O acesso a diferentes partes da API é controlado com base nas **roles** atribuídas aos usuários.
+* Existem diferentes roles definidas no sistema, como `CLIENT` (para usuários regulares) e `ADMIN` (para administradores com acesso privilegiado).
+* Certos endpoints da API exigem uma role específica para serem acessados. Por exemplo:
+    * Endpoints como `/api/admin/**` podem ser acessíveis apenas para usuários com a role `ADMIN`.
+    * Endpoints como `/api/pedidos/{id}` podem ser acessíveis para o `CLIENT` que criou o pedido ou para um `ADMIN`.
+* Se um usuário autenticado tenta acessar um recurso para o qual não possui a role ou permissão necessária, o servidor retorna uma resposta com o código de status HTTP **`403 Forbidden`**.
+
