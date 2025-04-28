@@ -69,7 +69,7 @@ Projeto de uma API RESTful para gerenciamento de produtos e pedidos em um sistem
 ---
 
 
-![Diagrama de Entidades Relacionadas](imagens/M-relacional.PNG)
+![Diagrama de Entidades Relacionadas](imagens/img1.PNG)
 
 > 
 
@@ -287,6 +287,7 @@ Para usar a Bean Validation no Spring Boot, é necessário adicionar a dependên
     <artifactId>spring-boot-starter-validation</artifactId>
 </dependency>
 ```
+
 ### DTO
 ```java
 public class ProductDTO {
@@ -331,6 +332,7 @@ public class ProductDTO {
 	}
  getters e setters
 ```
+
 ```java
 public class ProductMinDTO {
 
@@ -359,6 +361,7 @@ public class ProductMinDTO {
 getters e setters
 }
 ```
+
 ### Service
 ```java
 @Service
@@ -430,6 +433,7 @@ public class ProductService {
 	}
 }
 ```
+
 ### Repository
 ```java
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -440,6 +444,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 }
 ```
+
 ### Controller
 ```java
 @RestController
@@ -514,6 +519,7 @@ public class CustomErrorDTO {
 getters e setters
 }
 ```
+
 ### FieldMessageDTO
 ```java
 public class FieldMessageDTO {
@@ -527,6 +533,7 @@ public class FieldMessageDTO {
 getters e setters
 }
 ```
+
 ### ValidationError
 ```java
 public class ValidationError extends CustomErrorDTO {
@@ -544,6 +551,7 @@ public class ValidationError extends CustomErrorDTO {
 
 }
 ```
+
 ### DataBaseException
 ```java
 public class DataBaseException extends RuntimeException {
@@ -553,6 +561,7 @@ public class DataBaseException extends RuntimeException {
 
 }
 ```
+
 ### ForbiddenException
 ```java
 public class ForbiddenException extends RuntimeException {
@@ -562,6 +571,7 @@ public class ForbiddenException extends RuntimeException {
 
 }
 ```
+
 ### ResourceNotFoundException
 ```java
 public class ResourceNotFoundException extends RuntimeException {
@@ -571,6 +581,7 @@ public class ResourceNotFoundException extends RuntimeException {
 
 }
 ```
+
 **Exceções Tratadas:**
 
 * **`ResourceNotFoundException`**: Retorna `404 Not Found` para recursos não encontrados.
@@ -583,6 +594,7 @@ public class ResourceNotFoundException extends RuntimeException {
         return ResponseEntity.status(status).body(err);
     }
   ```
+  
 * **`DataBaseException`**: Retorna `400 Bad Request` para erros de banco de dados.
     ```java
         @ExceptionHandler(DataBaseException.class)
@@ -592,6 +604,7 @@ public class ResourceNotFoundException extends RuntimeException {
         return ResponseEntity.status(status).body(err);
     }
   ```
+    
 * **`MethodArgumentNotValidException`**: Retorna `422 Unprocessable Entity` para erros de validação, detalhando os campos inválidos.
     ```java
         @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -606,6 +619,7 @@ public class ResourceNotFoundException extends RuntimeException {
         return ResponseEntity.status(status).body(err);
     }
   ```
+    
 * **`ForbiddenException`**: Retorna `403 Forbidden` para acesso negado.
     ```java
        @ExceptionHandler(ForbiddenException.class)
@@ -616,6 +630,8 @@ public class ResourceNotFoundException extends RuntimeException {
     }
 
   ```
+
+
 ## Consultas personalizadas
 
 ### ProductRepository **JPQL**
@@ -628,6 +644,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 }
 ```
+
 ### UserRepository **SQL RAÍZ**
 ```java
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -643,6 +660,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByEmail(String email);
 }
 ```
+
+
 ## Autenticação e Autorização
 
 A segurança desta API é implementada através de um sistema de autenticação baseado em **JWT (JSON Web Tokens)** e controle de acesso baseado em **Roles (RBAC - Role-Based Access Control)**.
@@ -663,4 +682,208 @@ A segurança desta API é implementada através de um sistema de autenticação 
     * Endpoints como `/api/admin/**` podem ser acessíveis apenas para usuários com a role `ADMIN`.
     * Endpoints como `/api/pedidos/{id}` podem ser acessíveis para o `CLIENT` que criou o pedido ou para um `ADMIN`.
 * Se um usuário autenticado tenta acessar um recurso para o qual não possui a role ou permissão necessária, o servidor retorna uma resposta com o código de status HTTP **`403 Forbidden`**.
+  
 
+  ### Checklist OAuth2 JWT password grant
+```java
+security.client-id=${CLIENT_ID:myclientid}
+security.client-secret=${CLIENT_SECRET:myclientsecret}
+
+security.jwt.duration=${JWT_DURATION:86400}
+
+cors.origins=${CORS_ORIGINS:http://localhost:3000,http://localhost:5173}
+```
+
+### Essas dependências configuram OAuth2: uma emite tokens de acesso (spring-security-oauth2-authorization-server) e a outra valida esses tokens nas APIs (spring-boot-starter-oauth2-resource-server).
+```xml
+<dependency>
+	<groupId>org.springframework.security</groupId>
+	<artifactId>spring-security-oauth2-authorization-server</artifactId>
+</dependency>
+
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+</dependency>
+````
+## Configurações do AuthorizationServer e ResourceServer
+`AuthorizationServerConfig.java` [aqui](src/main/java/com/devmarrima/dscommerce_list/config/AuthorizationServerConfig.java)
+
+`ResourceServerConfig.java` [aqui](src/main/java/com/devmarrima/dscommerce_list/config/ResourceServerConfig.java)
+
+
+
+### 🔒 Configuração de Senhas
+Para garantir a segurança no armazenamento de senhas, o projeto utiliza o BCryptPasswordEncoder, configurado como um @Bean:
+```java
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+```
+
+![Diagrama de Entidades Relacionadas](imagens/check-list1.PNG)
+
+### Checklist do Spring Security **UserDetails**
+```java
+public class User implements UserDetails {
+@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return roles;
+	}
+
+	@Override
+	public String getUsername() {
+		return email;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
+
+}
+```
+
+### Checklist do Spring Security **GrantedAuthority**
+```java
+public class Role implements GrantedAuthority {
+    @Override
+    public String getAuthority() {
+        return authority;
+    }
+```
+
+![Diagrama de Entidades Relacionadas](imagens/check-list2.PNG)
+
+### Checklist do Spring Security **UserDetailsService**
+```java
+@Service
+public class UserService implements UserDetailsService {
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        List<UserDetailsProjection> projections = userRepository.searchUserAndRolesByEmail(username);
+        if (projections.size() == 0) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        User user = new User();
+        user.setEmail(username);
+        user.setPassword(projections.get(0).getPassword());
+        for (UserDetailsProjection list : projections) {
+            user.addRole(new Role(list.getRoleId(), list.getAuthority()));
+
+        }
+        return user;
+    }
+```
+
+### Control de acesso por perfil e rota
+```java
+@PreAuthorize("hasRole('ROLE_ADMIN')")
+
+@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OPERATOR')")
+```
+
+### O método authenticated() obtém o usuário autenticado do token JWT e o recupera do banco de dados. O método findMe() retorna um DTO com os dados do usuário autenticado.
+```java
+    protected User authenticated() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Jwt jwtPrincipal = (Jwt) authentication.getPrincipal();
+            String username = jwtPrincipal.getClaim("username");
+            return userRepository.findByEmail(username).get();
+        } catch (Exception e) {
+            throw new UsernameNotFoundException("Email not found");
+        }
+
+    }
+
+    @Transactional(readOnly = true)
+    public UserDTO findMe() {
+        User user = authenticated();
+        return new UserDTO(user);
+    }
+
+```
+
+### O método validateSelfOrAdmin() verifica se o usuário autenticado tem o papel de "ROLE_ADMIN" ou se o ID do usuário autenticado corresponde ao ID fornecido. Se nenhuma dessas condições for atendida, ele lança uma exceção ForbiddenException, negando o acesso.
+```java
+@Service
+public class AuthService {
+
+    @Autowired
+    private UserService userService;
+
+    public void validateSelfOrAdmin(Long userId){
+        User user = userService.authenticated();
+        if(!user.hasRole("ROLE_ADMIN") && !user.getId().equals(userId)){
+            throw new ForbiddenException("Access denied");
+        }
+    }
+
+}
+```
+
+## Como Rodar o Projeto
+
+Para executar este backend localmente, siga os seguintes passos:
+
+1.  **Pré-requisitos:**
+    * **Java 21:** Certifique-se de ter o Java Development Kit (JDK) versão 21 instalado em sua máquina. Você pode verificar sua versão do Java executando `java --version` no terminal.
+    * **Maven:** O projeto utiliza o Maven como ferramenta de gerenciamento de dependências e build. Certifique-se de tê-lo instalado. Você pode verificar sua instalação executando `mvn --version` no terminal.
+
+2.  **Clonar o Repositório:**
+    * Clone o repositório do seu projeto para sua máquina local utilizando o Git:
+        ```bash
+        git clone git@github.com:devmarrima/dscommerce-list.git
+        cd dscommerce-List
+        ```
+
+3.  **Configurar o Banco de Dados:**
+    * Este projeto utiliza o **H2 Database** em modo de memória para facilitar o desenvolvimento local. Nenhuma configuração adicional do banco de dados é necessária para rodar o projeto em ambiente de desenvolvimento. O Spring Boot configura automaticamente o H2.
+    * **Observação:** Para um ambiente de produção, você precisará configurar um banco de dados relacional como PostgreSQL ou MySQL e atualizar as configurações de conexão no arquivo `src/main/resources/application.properties` ou `application.yml`.
+
+4.  **Configurar as Variáveis de Ambiente (Opcional):**
+    * Se você precisar definir valores específicos para `CLIENT_ID`, `CLIENT_SECRET` ou `JWT_DURATION`, você pode fazê-lo através de variáveis de ambiente ou no arquivo `src/main/resources/application.properties`. Os valores padrão estão definidos caso você não os configure.
+    * Da mesma forma, configure as origens permitidas para CORS (`CORS_ORIGINS`) conforme necessário para o seu frontend.
+
+5.  **Executar a Aplicação Backend:**
+    * Utilize o Maven para compilar e executar a aplicação Spring Boot:
+        ```bash
+        mvn spring-boot:run
+        ```
+    * O backend estará disponível por padrão na porta `8080` (essa porta pode ser configurada no arquivo `application.properties`).
+
+6.  **Testar a API:**
+    * Você pode testar os endpoints da API utilizando ferramentas como `curl`, Postman ou Insomnia. Consulte a seção de "Operações CRUD" e "Autenticação e Autorização" para entender os endpoints disponíveis e como acessá-los (lembre-se da necessidade de obter um token JWT para endpoints protegidos).
+
+## Observações
+
+* **Perfil de Desenvolvimento:** A configuração padrão utiliza o H2 em memória, o que é ideal para desenvolvimento e testes locais. Para ambientes de produção, a configuração do banco de dados precisará ser ajustada para um sistema mais robusto e persistente.
+* **Segurança:** A segurança da API é implementada com OAuth2 e JWT. Certifique-se de entender o fluxo de autenticação para obter tokens e como incluí-los nas suas requisições para acessar endpoints protegidos por roles (`ROLE_ADMIN`, `ROLE_OPERATOR`).
+* **Validação:** A validação de dados de entrada é realizada utilizando Bean Validation (`@Valid` e anotações nos DTOs`), garantindo a integridade dos dados recebidos pela API.
+* **Tratamento de Exceções:** A aplicação possui um tratamento de exceções centralizado, fornecendo respostas de erro claras e padronizadas para diferentes cenários, facilitando a depuração e a integração com o frontend.
+* **Próximos Passos (Sugestões):**
+   * **Homologação:** Realizar testes em um ambiente o mais próximo possível da produção para garantir a qualidade e o funcionamento correto da aplicação.
+    * **Implantação:** Colocar a aplicação em um ambiente de produção.
+    * **CD/CI (Continuous Delivery/Continuous Integration):** Implementar um pipeline automatizado para build, teste e deploy contínuo da aplicação, facilitando futuras atualizações e manutenções.
+
+Este projeto serve como uma base sólida para um sistema de e-commerce, demonstrando boas práticas de desenvolvimento com Java e Spring Boot, desde a modelagem de domínio até a segurança e o tratamento de erros.
