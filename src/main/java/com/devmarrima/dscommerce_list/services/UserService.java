@@ -22,7 +22,6 @@ import com.devmarrima.dscommerce_list.repositories.UserRepository;
 public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
-    public UserDTO findMe;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
