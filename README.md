@@ -287,6 +287,7 @@ Para usar a Bean Validation no Spring Boot, é necessário adicionar a dependên
     <artifactId>spring-boot-starter-validation</artifactId>
 </dependency>
 ```
+
 ### DTO
 ```java
 public class ProductDTO {
@@ -331,6 +332,7 @@ public class ProductDTO {
 	}
  getters e setters
 ```
+
 ```java
 public class ProductMinDTO {
 
@@ -359,6 +361,7 @@ public class ProductMinDTO {
 getters e setters
 }
 ```
+
 ### Service
 ```java
 @Service
@@ -430,6 +433,7 @@ public class ProductService {
 	}
 }
 ```
+
 ### Repository
 ```java
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -440,6 +444,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 }
 ```
+
 ### Controller
 ```java
 @RestController
@@ -514,6 +519,7 @@ public class CustomErrorDTO {
 getters e setters
 }
 ```
+
 ### FieldMessageDTO
 ```java
 public class FieldMessageDTO {
@@ -527,6 +533,7 @@ public class FieldMessageDTO {
 getters e setters
 }
 ```
+
 ### ValidationError
 ```java
 public class ValidationError extends CustomErrorDTO {
@@ -544,6 +551,7 @@ public class ValidationError extends CustomErrorDTO {
 
 }
 ```
+
 ### DataBaseException
 ```java
 public class DataBaseException extends RuntimeException {
@@ -553,6 +561,7 @@ public class DataBaseException extends RuntimeException {
 
 }
 ```
+
 ### ForbiddenException
 ```java
 public class ForbiddenException extends RuntimeException {
@@ -562,6 +571,7 @@ public class ForbiddenException extends RuntimeException {
 
 }
 ```
+
 ### ResourceNotFoundException
 ```java
 public class ResourceNotFoundException extends RuntimeException {
@@ -571,6 +581,7 @@ public class ResourceNotFoundException extends RuntimeException {
 
 }
 ```
+
 **Exceções Tratadas:**
 
 * **`ResourceNotFoundException`**: Retorna `404 Not Found` para recursos não encontrados.
@@ -583,6 +594,7 @@ public class ResourceNotFoundException extends RuntimeException {
         return ResponseEntity.status(status).body(err);
     }
   ```
+  
 * **`DataBaseException`**: Retorna `400 Bad Request` para erros de banco de dados.
     ```java
         @ExceptionHandler(DataBaseException.class)
@@ -592,6 +604,7 @@ public class ResourceNotFoundException extends RuntimeException {
         return ResponseEntity.status(status).body(err);
     }
   ```
+    
 * **`MethodArgumentNotValidException`**: Retorna `422 Unprocessable Entity` para erros de validação, detalhando os campos inválidos.
     ```java
         @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -606,6 +619,7 @@ public class ResourceNotFoundException extends RuntimeException {
         return ResponseEntity.status(status).body(err);
     }
   ```
+    
 * **`ForbiddenException`**: Retorna `403 Forbidden` para acesso negado.
     ```java
        @ExceptionHandler(ForbiddenException.class)
@@ -616,6 +630,8 @@ public class ResourceNotFoundException extends RuntimeException {
     }
 
   ```
+
+
 ## Consultas personalizadas
 
 ### ProductRepository **JPQL**
@@ -628,6 +644,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 }
 ```
+
 ### UserRepository **SQL RAÍZ**
 ```java
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -643,6 +660,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByEmail(String email);
 }
 ```
+
+
 ## Autenticação e Autorização
 
 A segurança desta API é implementada através de um sistema de autenticação baseado em **JWT (JSON Web Tokens)** e controle de acesso baseado em **Roles (RBAC - Role-Based Access Control)**.
@@ -663,6 +682,7 @@ A segurança desta API é implementada através de um sistema de autenticação 
     * Endpoints como `/api/admin/**` podem ser acessíveis apenas para usuários com a role `ADMIN`.
     * Endpoints como `/api/pedidos/{id}` podem ser acessíveis para o `CLIENT` que criou o pedido ou para um `ADMIN`.
 * Se um usuário autenticado tenta acessar um recurso para o qual não possui a role ou permissão necessária, o servidor retorna uma resposta com o código de status HTTP **`403 Forbidden`**.
+  
 
   ### Checklist OAuth2 JWT password grant
 ```java
@@ -673,6 +693,7 @@ security.jwt.duration=${JWT_DURATION:86400}
 
 cors.origins=${CORS_ORIGINS:http://localhost:3000,http://localhost:5173}
 ```
+
 ### Essas dependências configuram OAuth2: uma emite tokens de acesso (spring-security-oauth2-authorization-server) e a outra valida esses tokens nas APIs (spring-boot-starter-oauth2-resource-server).
 ```xml
 <dependency>
@@ -691,6 +712,7 @@ cors.origins=${CORS_ORIGINS:http://localhost:3000,http://localhost:5173}
 `ResourceServerConfig.java` [aqui](src/main/java/com/devmarrima/dscommerce_list/config/ResourceServerConfig.java)
 
 
+
 ### 🔒 Configuração de Senhas
 Para garantir a segurança no armazenamento de senhas, o projeto utiliza o BCryptPasswordEncoder, configurado como um @Bean:
 ```java
@@ -699,6 +721,7 @@ Para garantir a segurança no armazenamento de senhas, o projeto utiliza o BCryp
 		return new BCryptPasswordEncoder();
 	}
 ```
+
 ![Diagrama de Entidades Relacionadas](imagens/check-list1.PNG)
 
 ### Checklist do Spring Security **UserDetails**
@@ -736,6 +759,7 @@ public class User implements UserDetails {
 
 }
 ```
+
 ### Checklist do Spring Security **GrantedAuthority**
 ```java
 public class Role implements GrantedAuthority {
@@ -770,12 +794,14 @@ public class UserService implements UserDetailsService {
         return user;
     }
 ```
+
 ### Control de acesso por perfil e rota
 ```java
 @PreAuthorize("hasRole('ROLE_ADMIN')")
 
 @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OPERATOR')")
 ```
+
 ### O método authenticated() obtém o usuário autenticado do token JWT e o recupera do banco de dados. O método findMe() retorna um DTO com os dados do usuário autenticado.
 ```java
     protected User authenticated() {
