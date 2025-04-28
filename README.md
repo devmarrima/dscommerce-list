@@ -672,7 +672,7 @@ Para garantir a segurança no armazenamento de senhas, o projeto utiliza o BCryp
 		return new BCryptPasswordEncoder();
 	}
 ```
-![Diagrama de Entidades Relacionadas](check-list1.PNG)
+![Diagrama de Entidades Relacionadas](imagens/check-list1.PNG)
 
 ### Checklist UserDetails
 ```java
