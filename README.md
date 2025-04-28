@@ -69,7 +69,7 @@ Projeto de uma API RESTful para gerenciamento de produtos e pedidos em um sistem
 ---
 
 
-![Diagrama de Entidades Relacionadas](imagens/M-relacional.PNG)
+![Diagrama de Entidades Relacionadas](imagens/img1.PNG)
 
 > 
 
