@@ -664,3 +664,56 @@ A segurança desta API é implementada através de um sistema de autenticação 
     * Endpoints como `/api/pedidos/{id}` podem ser acessíveis para o `CLIENT` que criou o pedido ou para um `ADMIN`.
 * Se um usuário autenticado tenta acessar um recurso para o qual não possui a role ou permissão necessária, o servidor retorna uma resposta com o código de status HTTP **`403 Forbidden`**.
 
+### 🔒 Configuração de Senhas
+Para garantir a segurança no armazenamento de senhas, o projeto utiliza o BCryptPasswordEncoder, configurado como um @Bean:
+```java
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+```
+![Diagrama de Entidades Relacionadas](check-list1.PNG)
+
+### Checklist UserDetails
+```java
+public class User implements UserDetails {
+@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return roles;
+	}
+
+	@Override
+	public String getUsername() {
+		return email;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
+
+}
+```
+### Checklist GrantedAuthority
+```java
+public class Role implements GrantedAuthority {
+    @Override
+    public String getAuthority() {
+        return authority;
+    }
+```
