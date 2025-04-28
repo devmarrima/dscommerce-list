@@ -687,6 +687,7 @@ cors.origins=${CORS_ORIGINS:http://localhost:3000,http://localhost:5173}
 ````
 ## Configurações do AuthorizationServer e ResourceServer
 `AuthorizationServerConfig.java` [aqui](src/main/java/com/devmarrima/dscommerce_list/config/AuthorizationServerConfig.java)
+
 `ResourceServerConfig.java` [aqui](src/main/java/com/devmarrima/dscommerce_list/config/ResourceServerConfig.java)
 
 
