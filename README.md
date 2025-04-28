@@ -875,7 +875,7 @@ Para executar este backend localmente, siga os seguintes passos:
 6.  **Testar a API:**
     * Você pode testar os endpoints da API utilizando ferramentas como `curl`, Postman ou Insomnia. Consulte a seção de "Operações CRUD" e "Autenticação e Autorização" para entender os endpoints disponíveis e como acessá-los (lembre-se da necessidade de obter um token JWT para endpoints protegidos).
 
-## Observações Finais
+## Observações
 
 * **Perfil de Desenvolvimento:** A configuração padrão utiliza o H2 em memória, o que é ideal para desenvolvimento e testes locais. Para ambientes de produção, a configuração do banco de dados precisará ser ajustada para um sistema mais robusto e persistente.
 * **Segurança:** A segurança da API é implementada com OAuth2 e JWT. Certifique-se de entender o fluxo de autenticação para obter tokens e como incluí-los nas suas requisições para acessar endpoints protegidos por roles (`ROLE_ADMIN`, `ROLE_OPERATOR`).
