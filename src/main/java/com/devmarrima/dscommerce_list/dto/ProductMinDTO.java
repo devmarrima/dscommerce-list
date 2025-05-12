@@ -8,14 +8,16 @@ public class ProductMinDTO {
 	private String name;
 	private Double price;
 	private String imgUrl;
+	private String description;
 
 	public ProductMinDTO() {
 
 	}
 
-	public ProductMinDTO(Long id, String name, Double price, String imgUrl) {
+	public ProductMinDTO(Long id, String name,String description, Double price, String imgUrl) {
 		this.id = id;
 		this.name = name;
+		this.description = description;
 		this.price = price;
 		this.imgUrl = imgUrl;
 	}
@@ -25,6 +27,7 @@ public class ProductMinDTO {
 		name = entity.getName();
 		price = entity.getPrice();
 		imgUrl = entity.getImgUrl();
+		description = entity.getDescription();
 	}
 
 	public Long getId() {
@@ -43,4 +46,9 @@ public class ProductMinDTO {
 		return imgUrl;
 	}
 
+	public String getDescription() {
+		return description;
+	}
+
+	
 }
